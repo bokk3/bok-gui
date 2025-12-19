@@ -1,5 +1,8 @@
-add_subdirectory(QR-Code-scanner)
-add_subdirectory(openpgp)
+if(NOT USE_EXTERNAL_MONERO)
+    add_subdirectory(QR-Code-scanner)
+    add_subdirectory(openpgp)
+endif()
+
 add_subdirectory(zxcvbn-c)
 
 qt5_add_resources(RESOURCES ../qml.qrc)
