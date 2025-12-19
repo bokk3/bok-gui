@@ -1,8 +1,10 @@
-add_library(quirc STATIC
-    quirc/lib/decode.c
-    quirc/lib/identify.c
-    quirc/lib/quirc.c
-    quirc/lib/version_db.c
-)
-set_target_properties(quirc PROPERTIES POSITION_INDEPENDENT_CODE ON)
-target_include_directories(quirc PUBLIC quirc/lib)
+if(NOT USE_EXTERNAL_MONERO)
+    add_library(quirc STATIC
+        quirc/lib/decode.c
+        quirc/lib/identify.c
+        quirc/lib/quirc.c
+        quirc/lib/version_db.c
+    )
+    set_target_properties(quirc PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    target_include_directories(quirc PUBLIC quirc/lib)
+endif()

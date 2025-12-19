@@ -34,7 +34,7 @@ set(BUILD_64 ON CACHE BOOL "Build 64-bit binaries")
 
 # External BOK-coin core
 set(MONERO_SOURCE_DIR "/media/bokkie/Extendo/Papers/Crypto/bok-coin/bok-coin")
-set(MONERO_BUILD_DIR "/media/bokkie/Extendo/Papers/Crypto/bok-coin/bok-coin/build/release")
+set(MONERO_BUILD_DIR "/media/bokkie/Extendo/Papers/Crypto/bok-coin/bok-coin/build/Linux/bok-mainnet/release")
 set(USE_EXTERNAL_MONERO TRUE)
 
 if(USE_EXTERNAL_MONERO)
@@ -136,8 +136,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 
-get_directory_property(ARCH_WIDTH DIRECTORY "monero" DEFINITION ARCH_WIDTH)
-get_directory_property(Boost_VERSION_STRING DIRECTORY "monero" DEFINITION Boost_VERSION_STRING)
+if(NOT USE_EXTERNAL_MONERO)
+  get_directory_property(ARCH_WIDTH DIRECTORY "monero" DEFINITION ARCH_WIDTH)
+  get_directory_property(Boost_VERSION_STRING DIRECTORY "monero" DEFINITION Boost_VERSION_STRING)
+endif()
+
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-DQT_NO_DEBUG)
@@ -154,7 +157,12 @@ include(CMakePackageConfigHelpers)
 include_directories(${EASYLOGGING_INCLUDE})
 link_directories(${EASYLOGGING_LIBRARY_DIRS})
 
-include(VersionGui)
+if(NOT USE_EXTERNAL_MONERO)
+  include(VersionGui)
+else()
+  # External core: skip version detection
+  set(GUI_VERSION "external-core")
+endif()
 
 message(STATUS "${CMAKE_MODULE_PATH}")
 
@@ -442,55 +450,68 @@ if(APPLE)
 endif()
 
 # warnings
-add_c_flag_if_supported(-Wformat C_SECURITY_FLAGS)
-add_cxx_flag_if_supported(-Wformat CXX_SECURITY_FLAGS)
-add_c_flag_if_supported(-Wformat-security C_SECURITY_FLAGS)
-add_cxx_flag_if_supported(-Wformat-security CXX_SECURITY_FLAGS)
+if(NOT USE_EXTERNAL_MONERO)
+  add_c_flag_if_supported(-Wformat C_SECURITY_FLAGS)
+  add_cxx_flag_if_supported(-Wformat CXX_SECURITY_FLAGS)
+  add_c_flag_if_supported(-Wformat-security C_SECURITY_FLAGS)
+  add_cxx_flag_if_supported(-Wformat-security CXX_SECURITY_FLAGS)
 
-# -fstack-protector
-if(NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
-  add_c_flag_if_supported(-fstack-protector C_SECURITY_FLAGS)
-  add_cxx_flag_if_supported(-fstack-protector CXX_SECURITY_FLAGS)
-  add_c_flag_if_supported(-fstack-protector-strong C_SECURITY_FLAGS)
-  add_cxx_flag_if_supported(-fstack-protector-strong CXX_SECURITY_FLAGS)
-endif()
+  # -fstack-protector
+  if(NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
+    add_c_flag_if_supported(-fstack-protector C_SECURITY_FLAGS)
+    add_cxx_flag_if_supported(-fstack-protector CXX_SECURITY_FLAGS)
+    add_c_flag_if_supported(-fstack-protector-strong C_SECURITY_FLAGS)
+    add_cxx_flag_if_supported(-fstack-protector-strong CXX_SECURITY_FLAGS)
+  endif()
 
-# New in GCC 8.2
-if(NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
-  add_c_flag_if_supported(-fcf-protection=full C_SECURITY_FLAGS)
-  add_cxx_flag_if_supported(-fcf-protection=full CXX_SECURITY_FLAGS)
-endif()
-if(NOT WIN32 AND NOT OPENBSD AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  add_c_flag_if_supported(-fstack-clash-protection C_SECURITY_FLAGS)
-  add_cxx_flag_if_supported(-fstack-clash-protection CXX_SECURITY_FLAGS)
-endif()
+  # New in GCC 8.2
+  if(NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
+    add_c_flag_if_supported(-fcf-protection=full C_SECURITY_FLAGS)
+    add_cxx_flag_if_supported(-fcf-protection=full CXX_SECURITY_FLAGS)
+  endif()
 
-# Removed in GCC 9.1 (or before ?), but still accepted, so spams the output
-if(NOT (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1))
-  add_c_flag_if_supported(-mmitigate-rop C_SECURITY_FLAGS)
-  add_cxx_flag_if_supported(-mmitigate-rop CXX_SECURITY_FLAGS)
+  if(NOT WIN32 AND NOT OPENBSD AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    add_c_flag_if_supported(-fstack-clash-protection C_SECURITY_FLAGS)
+    add_cxx_flag_if_supported(-fstack-clash-protection CXX_SECURITY_FLAGS)
+  endif()
+
+  # Removed in GCC 9.1 (or before ?), but still accepted, so spams the output
+  if(NOT (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1))
+    add_c_flag_if_supported(-mmitigate-rop C_SECURITY_FLAGS)
+    add_cxx_flag_if_supported(-mmitigate-rop CXX_SECURITY_FLAGS)
+  endif()
 endif()
 
 # linker
-if(APPLE)
-  add_linker_flag_if_supported(-Wl,-bind_at_load LD_SECURITY_FLAGS)
-  add_linker_flag_if_supported(-Wl,-dead_strip LD_SECURITY_FLAGS)
-  add_linker_flag_if_supported(-Wl,-dead_strip_dylibs LD_SECURITY_FLAGS)
+if(NOT USE_EXTERNAL_MONERO)
+
+  if(APPLE)
+    add_linker_flag_if_supported(-Wl,-bind_at_load LD_SECURITY_FLAGS)
+    add_linker_flag_if_supported(-Wl,-dead_strip LD_SECURITY_FLAGS)
+    add_linker_flag_if_supported(-Wl,-dead_strip_dylibs LD_SECURITY_FLAGS)
+  endif()
+
+  if(NOT APPLE AND NOT (WIN32 AND CMAKE_C_COMPILER_ID STREQUAL "GNU"))
+    # Windows binaries die on startup with PIE when compiled with GCC
+    add_linker_flag_if_supported(-pie LD_SECURITY_FLAGS)
+  endif()
+
+  add_linker_flag_if_supported(-Wl,-z,relro LD_SECURITY_FLAGS)
+  add_linker_flag_if_supported(-Wl,-z,now LD_SECURITY_FLAGS)
+  add_linker_flag_if_supported(-Wl,-z,noexecstack noexecstack_SUPPORTED)
+
+  if(noexecstack_SUPPORTED)
+    set(LD_SECURITY_FLAGS "${LD_SECURITY_FLAGS} -Wl,-z,noexecstack")
+  endif()
+
+  add_linker_flag_if_supported(-Wl,-z,noexecheap noexecheap_SUPPORTED)
+
+  if(noexecheap_SUPPORTED)
+    set(LD_SECURITY_FLAGS "${LD_SECURITY_FLAGS} -Wl,-z,noexecheap")
+  endif()
+
 endif()
-if(NOT APPLE AND NOT (WIN32 AND CMAKE_C_COMPILER_ID STREQUAL "GNU"))
-  # Windows binaries die on startup with PIE when compiled with GCC
-  add_linker_flag_if_supported(-pie LD_SECURITY_FLAGS)
-endif()
-add_linker_flag_if_supported(-Wl,-z,relro LD_SECURITY_FLAGS)
-add_linker_flag_if_supported(-Wl,-z,now LD_SECURITY_FLAGS)
-add_linker_flag_if_supported(-Wl,-z,noexecstack noexecstack_SUPPORTED)
-if(noexecstack_SUPPORTED)
-  set(LD_SECURITY_FLAGS "${LD_SECURITY_FLAGS} -Wl,-z,noexecstack")
-endif()
-add_linker_flag_if_supported(-Wl,-z,noexecheap noexecheap_SUPPORTED)
-if(noexecheap_SUPPORTED)
-  set(LD_SECURITY_FLAGS "${LD_SECURITY_FLAGS} -Wl,-z,noexecheap")
-endif()
+
 
 # some windows linker bits
 if(WIN32)
@@ -509,11 +530,13 @@ endif()
 
 # With GCC 6.1.1 the compiled binary malfunctions due to aliasing. Until that
 # is fixed in the code (Issue #847), force compiler to be conservative.
-add_c_flag_if_supported(-fno-strict-aliasing C_SECURITY_FLAGS)
-add_cxx_flag_if_supported(-fno-strict-aliasing CXX_SECURITY_FLAGS)
+if(NOT USE_EXTERNAL_MONERO)
+  add_c_flag_if_supported(-fno-strict-aliasing C_SECURITY_FLAGS)
+  add_cxx_flag_if_supported(-fno-strict-aliasing CXX_SECURITY_FLAGS)
 
-add_c_flag_if_supported(-fPIC C_SECURITY_FLAGS)
-add_cxx_flag_if_supported(-fPIC CXX_SECURITY_FLAGS)
+  add_c_flag_if_supported(-fPIC C_SECURITY_FLAGS)
+  add_cxx_flag_if_supported(-fPIC CXX_SECURITY_FLAGS)
+endif()
 
 message(STATUS "Using C security hardening flags: ${C_SECURITY_FLAGS}")
 message(STATUS "Using C++ security hardening flags: ${CXX_SECURITY_FLAGS}")

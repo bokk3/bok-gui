@@ -6,16 +6,20 @@ find_path(GCRYPT_INCLUDE_DIR gcrypt.h REQUIRED)
 
 find_library(GPG_ERROR_LIBRARY gpg-error REQUIRED)
 
-add_library(openpgp
-  ${SOURCES}
-  ${HEADERS})
+if(NOT USE_EXTERNAL_MONERO)
 
-target_include_directories(openpgp
-  PUBLIC
+  add_library(openpgp
+    ${SOURCES}
+    ${HEADERS})
+
+  target_include_directories(openpgp
+    PUBLIC
     ${CMAKE_SOURCE_DIR}/monero/contrib/epee/include
     ${GCRYPT_INCLUDE_DIR})
 
-target_link_libraries(openpgp
-  PUBLIC
+  target_link_libraries(openpgp
+    PUBLIC
     ${GCRYPT_LIBRARY}
     ${GPG_ERROR_LIBRARY})
+
+endif()

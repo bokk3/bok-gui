@@ -6,8 +6,8 @@ qt5_add_resources(RESOURCES ../qml.qrc)
 
 # Compile source files (.h/.cpp)
 file(GLOB SOURCE_FILES
-	"*.h"
-	"*.cpp"
+    "*.h"
+    "*.cpp"
     "main/*.h"
     "main/*.cpp"
     "libwalletqt/WalletManager.cpp"
@@ -92,24 +92,24 @@ message(STATUS "OpenGL: libraries at ${OPENGL_LIBRARIES}")
 target_include_directories(monero-wallet-gui PUBLIC ${Qt5Gui_PRIVATE_INCLUDE_DIRS})
 
 target_include_directories(monero-wallet-gui PUBLIC
-	${CMAKE_SOURCE_DIR}/monero/include
+    ${CMAKE_SOURCE_DIR}/monero/include
     ${CMAKE_SOURCE_DIR}/monero/src
     ${CMAKE_SOURCE_DIR}/monero/external/easylogging++
     ${CMAKE_SOURCE_DIR}/monero/contrib/epee/include
     ${CMAKE_SOURCE_DIR}/monero/external/qrcodegen
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/daemon
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/daemon
     ${CMAKE_CURRENT_SOURCE_DIR}/p2pool
-	${CMAKE_CURRENT_SOURCE_DIR}/libwalletqt
-	${CMAKE_CURRENT_SOURCE_DIR}/model
-	${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-scanner
-	${CMAKE_CURRENT_SOURCE_DIR}/zxcvbn-c
+    ${CMAKE_CURRENT_SOURCE_DIR}/libwalletqt
+    ${CMAKE_CURRENT_SOURCE_DIR}/model
+    ${CMAKE_CURRENT_SOURCE_DIR}/QR-Code-scanner
+    ${CMAKE_CURRENT_SOURCE_DIR}/zxcvbn-c
     ${X11_INCLUDE_DIR}
 )
 
 target_compile_definitions(monero-wallet-gui
-	PUBLIC
-	${Qt5Widgets_DEFINITIONS}
+    PUBLIC
+    ${Qt5Widgets_DEFINITIONS}
     ${Qt5Qml_DEFINITIONS}
 )
 
@@ -154,7 +154,9 @@ if(WITH_SCANNER)
     endif()
 endif()
 
-add_custom_command(TARGET monero-wallet-gui POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:daemon> $<TARGET_FILE_DIR:monero-wallet-gui>)
+if(NOT USE_EXTERNAL_MONERO)
+    add_custom_command(TARGET monero-wallet-gui POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:daemon> $<TARGET_FILE_DIR:monero-wallet-gui>)
+endif()
 
 include(Deploy)
 
