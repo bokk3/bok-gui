@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(monero-gui)
+project(bok-coin-gui)
 
 message(STATUS "Initiating compile using CMake ${CMAKE_VERSION}")
 
@@ -34,16 +34,16 @@ set(BUILD_64 ON CACHE BOOL "Build 64-bit binaries")
 
 # External BOK-coin core
 set(MONERO_SOURCE_DIR "/media/bokkie/Extendo/Papers/Crypto/bok-coin/bok-coin")
-set(MONERO_BUILD_DIR  "/media/bokkie/Extendo/Papers/Crypto/bok-coin/bok-coin/build/release")
+set(MONERO_BUILD_DIR "/media/bokkie/Extendo/Papers/Crypto/bok-coin/bok-coin/build/release")
 set(USE_EXTERNAL_MONERO TRUE)
 
 if(USE_EXTERNAL_MONERO)
-    if(NOT EXISTS ${MONERO_SOURCE_DIR})
-        message(FATAL_ERROR "MONERO_SOURCE_DIR does not exist: ${MONERO_SOURCE_DIR}")
-    endif()
-    if(NOT EXISTS ${MONERO_BUILD_DIR})
-        message(FATAL_ERROR "MONERO_BUILD_DIR does not exist: ${MONERO_BUILD_DIR}")
-    endif()
+  if(NOT EXISTS ${MONERO_SOURCE_DIR})
+    message(FATAL_ERROR "MONERO_SOURCE_DIR does not exist: ${MONERO_SOURCE_DIR}")
+  endif()
+  if(NOT EXISTS ${MONERO_BUILD_DIR})
+    message(FATAL_ERROR "MONERO_BUILD_DIR does not exist: ${MONERO_BUILD_DIR}")
+  endif()
 endif()
 
 # Submodule handling
@@ -111,21 +111,21 @@ if(NOT MANUAL_SUBMODULES)
       )
 
       if(NOT GIT_FETCH_RESULT EQUAL "0"
-         OR NOT GIT_CHECKOUT_MASTER_RESULT EQUAL "0"
-         OR NOT GIT_SUBMODULE_SYNC_RESULT EQUAL "0"
-         OR NOT GIT_SUBMODULE_UPDATE_RESULT EQUAL "0")
+        OR NOT GIT_CHECKOUT_MASTER_RESULT EQUAL "0"
+        OR NOT GIT_SUBMODULE_SYNC_RESULT EQUAL "0"
+        OR NOT GIT_SUBMODULE_UPDATE_RESULT EQUAL "0")
         message(FATAL_ERROR "Updating git submodule to master (-DDEV_MODE=ON) failed")
       endif()
 
     endif() # DEV_MODE
-  endif()   # GIT_FOUND
-endif()     # NOT MANUAL_SUBMODULES
+  endif() # GIT_FOUND
+endif() # NOT MANUAL_SUBMODULES
 
 # Embedded Monero disabled
 # add_subdirectory(monero)
 
 if(USE_EXTERNAL_MONERO)
-    set(MONERO_IS_SUBMODULE OFF)
+  set(MONERO_IS_SUBMODULE OFF)
 endif()
 
 # External dependencies
@@ -139,7 +139,7 @@ set(CMAKE_AUTOUIC ON)
 get_directory_property(ARCH_WIDTH DIRECTORY "monero" DEFINITION ARCH_WIDTH)
 get_directory_property(Boost_VERSION_STRING DIRECTORY "monero" DEFINITION Boost_VERSION_STRING)
 
-if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-DQT_NO_DEBUG)
 endif()
 
@@ -159,15 +159,15 @@ include(VersionGui)
 message(STATUS "${CMAKE_MODULE_PATH}")
 
 if(WITH_SCANNER)
-    add_definitions(-DWITH_SCANNER)
+  add_definitions(-DWITH_SCANNER)
 endif()
 
 if(WITH_DESKTOP_ENTRY)
-    add_definitions(-DWITH_DESKTOP_ENTRY)
+  add_definitions(-DWITH_DESKTOP_ENTRY)
 endif()
 
 if(WITH_UPDATER)
-    add_definitions(-DWITH_UPDATER)
+  add_definitions(-DWITH_UPDATER)
 endif()
 
 # Sodium
@@ -175,20 +175,20 @@ find_library(SODIUM_LIBRARY sodium)
 message(STATUS "libsodium: libraries at ${SODIUM_LIBRARY}")
 
 if(UNIX AND NOT APPLE AND NOT ANDROID)
-    set(CMAKE_SKIP_RPATH ON)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES_PREV ${CMAKE_FIND_LIBRARY_SUFFIXES})
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
-    find_package(X11 REQUIRED)
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_PREV})
-    message(STATUS "X11_FOUND = ${X11_FOUND}")
-    message(STATUS "X11_INCLUDE_DIR = ${X11_INCLUDE_DIR}")
-    message(STATUS "X11_LIBRARIES = ${X11_LIBRARIES}")
-    include_directories(${X11_INCLUDE_DIR})
-    link_directories(${X11_LIBRARIES})
-    if(STATIC)
-        find_library(XCB_LIBRARY xcb)
-        message(STATUS "Found xcb library: ${XCB_LIBRARY}")
-    endif()
+  set(CMAKE_SKIP_RPATH ON)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES_PREV ${CMAKE_FIND_LIBRARY_SUFFIXES})
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ".so")
+  find_package(X11 REQUIRED)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_PREV})
+  message(STATUS "X11_FOUND = ${X11_FOUND}")
+  message(STATUS "X11_INCLUDE_DIR = ${X11_INCLUDE_DIR}")
+  message(STATUS "X11_LIBRARIES = ${X11_LIBRARIES}")
+  include_directories(${X11_INCLUDE_DIR})
+  link_directories(${X11_LIBRARIES})
+  if(STATIC)
+    find_library(XCB_LIBRARY xcb)
+    message(STATUS "Found xcb library: ${XCB_LIBRARY}")
+  endif()
 endif()
 
 set(QT5_LIBRARIES
@@ -336,7 +336,7 @@ if(STATIC)
   )
 
   if(NOT ${Qt5Core_VERSION} VERSION_LESS 5.14)
-     list(APPEND QT5_EXTRA_LIBRARIES_LIST qmlplugin)
+    list(APPEND QT5_EXTRA_LIBRARIES_LIST qmlplugin)
   endif()
 
   set(QT5_EXTRA_LIBRARIES)
@@ -433,12 +433,12 @@ if(APPLE)
   cmake_policy(SET CMP0042 NEW)
 endif()
 
-if (APPLE AND NOT IOS)
+if(APPLE AND NOT IOS)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default")
 endif()
 
 if(APPLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -DGTEST_HAS_TR1_TUPLE=0")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -DGTEST_HAS_TR1_TUPLE=0")
 endif()
 
 # warnings
@@ -448,7 +448,7 @@ add_c_flag_if_supported(-Wformat-security C_SECURITY_FLAGS)
 add_cxx_flag_if_supported(-Wformat-security CXX_SECURITY_FLAGS)
 
 # -fstack-protector
-if (NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
+if(NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
   add_c_flag_if_supported(-fstack-protector C_SECURITY_FLAGS)
   add_cxx_flag_if_supported(-fstack-protector CXX_SECURITY_FLAGS)
   add_c_flag_if_supported(-fstack-protector-strong C_SECURITY_FLAGS)
@@ -456,44 +456,44 @@ if (NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE
 endif()
 
 # New in GCC 8.2
-if (NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
+if(NOT OPENBSD AND NOT (WIN32 AND (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1)))
   add_c_flag_if_supported(-fcf-protection=full C_SECURITY_FLAGS)
   add_cxx_flag_if_supported(-fcf-protection=full CXX_SECURITY_FLAGS)
 endif()
-if (NOT WIN32 AND NOT OPENBSD AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+if(NOT WIN32 AND NOT OPENBSD AND NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   add_c_flag_if_supported(-fstack-clash-protection C_SECURITY_FLAGS)
   add_cxx_flag_if_supported(-fstack-clash-protection CXX_SECURITY_FLAGS)
 endif()
 
 # Removed in GCC 9.1 (or before ?), but still accepted, so spams the output
-if (NOT (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1))
+if(NOT (CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1))
   add_c_flag_if_supported(-mmitigate-rop C_SECURITY_FLAGS)
   add_cxx_flag_if_supported(-mmitigate-rop CXX_SECURITY_FLAGS)
 endif()
 
 # linker
-if (APPLE)
+if(APPLE)
   add_linker_flag_if_supported(-Wl,-bind_at_load LD_SECURITY_FLAGS)
   add_linker_flag_if_supported(-Wl,-dead_strip LD_SECURITY_FLAGS)
   add_linker_flag_if_supported(-Wl,-dead_strip_dylibs LD_SECURITY_FLAGS)
 endif()
-if (NOT APPLE AND NOT (WIN32 AND CMAKE_C_COMPILER_ID STREQUAL "GNU"))
+if(NOT APPLE AND NOT (WIN32 AND CMAKE_C_COMPILER_ID STREQUAL "GNU"))
   # Windows binaries die on startup with PIE when compiled with GCC
   add_linker_flag_if_supported(-pie LD_SECURITY_FLAGS)
 endif()
 add_linker_flag_if_supported(-Wl,-z,relro LD_SECURITY_FLAGS)
 add_linker_flag_if_supported(-Wl,-z,now LD_SECURITY_FLAGS)
 add_linker_flag_if_supported(-Wl,-z,noexecstack noexecstack_SUPPORTED)
-if (noexecstack_SUPPORTED)
+if(noexecstack_SUPPORTED)
   set(LD_SECURITY_FLAGS "${LD_SECURITY_FLAGS} -Wl,-z,noexecstack")
 endif()
 add_linker_flag_if_supported(-Wl,-z,noexecheap noexecheap_SUPPORTED)
-if (noexecheap_SUPPORTED)
+if(noexecheap_SUPPORTED)
   set(LD_SECURITY_FLAGS "${LD_SECURITY_FLAGS} -Wl,-z,noexecheap")
 endif()
 
 # some windows linker bits
-if (WIN32)
+if(WIN32)
   add_linker_flag_if_supported(-Wl,--dynamicbase LD_SECURITY_FLAGS)
   add_linker_flag_if_supported(-Wl,--nxcompat LD_SECURITY_FLAGS)
   add_linker_flag_if_supported(-Wl,--high-entropy-va LD_SECURITY_FLAGS)
